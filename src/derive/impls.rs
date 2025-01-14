@@ -126,6 +126,7 @@ impl Encode for str {
     type Encoder = StrEncoder;
 }
 
+
 // Partial zero copy deserialization like serde.
 impl Encode for &str {
     type Encoder = StrEncoder;
@@ -160,6 +161,15 @@ impl<T: Encode, E: Encode> Encode for core::result::Result<T, E> {
 impl<'a, T: Decode<'a>, E: Decode<'a>> Decode<'a> for core::result::Result<T, E> {
     type Decoder = ResultDecoder<'a, T, E>;
 }
+
+#[cfg(feature = "safer-ffi")]
+impl<T: Encode> Encode for safer_ffi::Vec<T> {
+    type Encoder = VecEncoder<T>;
+}
+impl<'a, T: Decode<'a>> Decode<'a> for safer_ffi::Vec<T> {
+    type Decoder = VecDecoder<'a, T>;
+}
+
 
 #[cfg(feature = "std")]
 mod with_std {
