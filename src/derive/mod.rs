@@ -17,6 +17,7 @@ mod map;
 mod option;
 mod result;
 mod smart_ptr;
+mod tagged_option;
 mod variant;
 pub(crate) mod vec;
 
