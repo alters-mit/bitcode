@@ -14,6 +14,7 @@ use crate::str::{StrDecoder, StrEncoder};
 use alloc::collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque};
 use alloc::string::String;
 use alloc::vec::Vec;
+#[cfg(feature = "safer-ffi")]
 use safer_ffi::option::TaggedOption;
 use core::marker::PhantomData;
 use core::mem::MaybeUninit;
@@ -30,7 +31,7 @@ macro_rules! impl_both {
     };
 }
 pub(crate) use impl_both;
-
+#[cfg(feature = "safer-ffi")]
 use super::tagged_option::{TaggedOptionDecoder, TaggedOptionEncoder};
 impl_both!(bool, BoolEncoder, BoolDecoder);
 impl_both!(f32, F32Encoder, F32Decoder);
@@ -86,6 +87,7 @@ macro_rules! impl_t {
 }
 impl_t!(LinkedList, VecEncoder, VecDecoder);
 impl_t!(Option, OptionEncoder, OptionDecoder);
+#[cfg(feature = "safer-ffi")]
 impl_t!(TaggedOption, TaggedOptionEncoder, TaggedOptionDecoder);
 impl_t!(Vec, VecEncoder, VecDecoder);
 impl_t!(VecDeque, VecEncoder, VecDecoder);

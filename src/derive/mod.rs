@@ -17,6 +17,7 @@ mod map;
 mod option;
 mod result;
 mod smart_ptr;
+#[cfg(feature = "safer-ffi")]
 mod tagged_option;
 mod variant;
 pub(crate) mod vec;
