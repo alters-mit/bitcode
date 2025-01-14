@@ -87,8 +87,6 @@ macro_rules! impl_t {
 }
 impl_t!(LinkedList, VecEncoder, VecDecoder);
 impl_t!(Option, OptionEncoder, OptionDecoder);
-#[cfg(feature = "safer-ffi")]
-impl_t!(TaggedOption, TaggedOptionEncoder, TaggedOptionDecoder);
 impl_t!(Vec, VecEncoder, VecDecoder);
 impl_t!(VecDeque, VecEncoder, VecDecoder);
 
@@ -172,8 +170,17 @@ impl<'a, T: Decode<'a>, E: Decode<'a>> Decode<'a> for core::result::Result<T, E>
 impl<T: Encode> Encode for safer_ffi::Vec<T> {
     type Encoder = VecEncoder<T>;
 }
+#[cfg(feature = "safer-ffi")]
 impl<'a, T: Decode<'a> + Default + Clone> Decode<'a> for safer_ffi::Vec<T> {
     type Decoder = VecDecoder<'a, T>;
+}
+#[cfg(feature = "safer-ffi")]
+impl<T: Encode> Encode for TaggedOption<T> {
+    type Encoder = TaggedOptionEncoder<T>;
+}
+#[cfg(feature = "safer-ffi")]
+impl<'a, T: Decode<'a>> Decode<'a> for TaggedOption<T> {
+    type Decoder = TaggedOptionDecoder<'a, T>;
 }
 
 
