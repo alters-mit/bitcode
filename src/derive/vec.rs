@@ -399,7 +399,7 @@ impl<'a, T: Decode<'a> + Default + Clone> Decoder<'a, safer_ffi::Vec<T>> for Vec
             unsafe {
                 let len = v.len();
                 slice::from_raw_parts_mut(
-                    v.as_mut_ptr().add(len) as *mut MaybeUninit<T>,
+                    v.as_mut_ptr() as *mut MaybeUninit<T>,
                     len
                 ).iter_mut().for_each(|e| self.elements.decode_in_place(e));
             }
