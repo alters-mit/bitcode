@@ -365,9 +365,6 @@ impl<'a, T: Decode<'a>> Decoder<'a, VecDeque<T>> for VecDecoder<'a, T> {
 impl<T: Encode> Encoder<safer_ffi::Vec<T>> for VecEncoder<T> {
     #[inline(always)]
     fn encode(&mut self, v: &safer_ffi::Vec<T>) {
-        let n = v.len();
-        self.lengths.encode(&n);
-
         self.encode(as_safe_slice(v));
     }
 
@@ -380,7 +377,7 @@ impl<T: Encode> Encoder<safer_ffi::Vec<T>> for VecEncoder<T> {
     }
 }
 #[cfg(feature = "safer-ffi")]
-impl<'a, T: Decode<'a>> Decoder<'a, safer_ffi::Vec<T>> for VecDecoder<'a, T> {
+impl<'a, T: Decode<'a> + Default + Clone> Decoder<'a, safer_ffi::Vec<T>> for VecDecoder<'a, T> {
     #[inline(always)]
     fn decode_in_place(&mut self, out: &mut MaybeUninit<safer_ffi::Vec<T>>) {
         let length = self.lengths.decode();
@@ -390,7 +387,7 @@ impl<'a, T: Decode<'a>> Decoder<'a, safer_ffi::Vec<T>> for VecDecoder<'a, T> {
             return;
         }
 
-        let v = out.write(Vec::with_capacity(length).into());
+        let v = out.write(vec![T::default(); length].into());
         if let Some(primitive) = self.elements.as_primitive() {
             unsafe {
                 primitive
