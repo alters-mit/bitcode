@@ -18,7 +18,7 @@ arrayvec = { version = "0.7", default-features = false, optional = true }
 bitcode_derive = { version = "0.6.3", path = "./bitcode_derive", optional = true }
 bytemuck = { version = "1.14", features = [ "min_const_generics", "must_cast" ] }
 glam = { version = ">=0.21", default-features = false, optional = true }
-safer-ffi = { version = "0.1.13", git = "https://github.com/alters-mit/safer_ffi.git", branch = "tagged_option_default", optional = true }
+safer-ffi = { version = "0.1.13", git = "https://github.com/alters-mit/safer_ffi.git", rev = "2df6526", optional = true }
 serde = { version = "1.0", default-features = false, features = [ "alloc" ], optional = true }
 
 [dev-dependencies]

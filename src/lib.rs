@@ -29,12 +29,17 @@ mod length;
 mod nightly;
 mod pack;
 mod pack_ints;
+#[cfg(feature = "safer-ffi")]
+mod safer_ffi;
 mod str;
 mod u8_char;
 
 pub use crate::buffer::Buffer;
 pub use crate::derive::*;
 pub use crate::error::Error;
+
+#[cfg(feature = "safer-ffi")]
+pub use safer_ffi::*;
 
 #[cfg(feature = "derive")]
 pub use bitcode_derive::{Decode, Encode};

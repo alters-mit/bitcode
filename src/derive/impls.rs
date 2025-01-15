@@ -14,8 +14,6 @@ use crate::str::{StrDecoder, StrEncoder};
 use alloc::collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque};
 use alloc::string::String;
 use alloc::vec::Vec;
-#[cfg(feature = "safer-ffi")]
-use safer_ffi::option::TaggedOption;
 use core::marker::PhantomData;
 use core::mem::MaybeUninit;
 use core::num::*;
@@ -31,8 +29,6 @@ macro_rules! impl_both {
     };
 }
 pub(crate) use impl_both;
-#[cfg(feature = "safer-ffi")]
-use super::tagged_option::{TaggedOptionDecoder, TaggedOptionEncoder};
 impl_both!(bool, BoolEncoder, BoolDecoder);
 impl_both!(f32, F32Encoder, F32Decoder);
 impl_both!(String, StrEncoder, StrDecoder);
@@ -130,7 +126,6 @@ impl Encode for str {
     type Encoder = StrEncoder;
 }
 
-
 // Partial zero copy deserialization like serde.
 impl Encode for &str {
     type Encoder = StrEncoder;
@@ -165,24 +160,6 @@ impl<T: Encode, E: Encode> Encode for core::result::Result<T, E> {
 impl<'a, T: Decode<'a>, E: Decode<'a>> Decode<'a> for core::result::Result<T, E> {
     type Decoder = ResultDecoder<'a, T, E>;
 }
-
-#[cfg(feature = "safer-ffi")]
-impl<T: Encode> Encode for safer_ffi::Vec<T> {
-    type Encoder = VecEncoder<T>;
-}
-#[cfg(feature = "safer-ffi")]
-impl<'a, T: Decode<'a> + Default + Clone> Decode<'a> for safer_ffi::Vec<T> {
-    type Decoder = VecDecoder<'a, T>;
-}
-#[cfg(feature = "safer-ffi")]
-impl<T: Encode> Encode for TaggedOption<T> {
-    type Encoder = TaggedOptionEncoder<T>;
-}
-#[cfg(feature = "safer-ffi")]
-impl<'a, T: Decode<'a>> Decode<'a> for TaggedOption<T> {
-    type Decoder = TaggedOptionDecoder<'a, T>;
-}
-
 
 #[cfg(feature = "std")]
 mod with_std {

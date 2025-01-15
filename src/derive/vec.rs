@@ -11,7 +11,6 @@ use core::num::NonZeroUsize;
 use core::hash::{BuildHasher, Hash};
 #[cfg(feature = "std")]
 use std::collections::HashSet;
-use std::slice;
 
 pub struct VecEncoder<T: Encode> {
     // pub(crate) for arrayvec.rs
@@ -340,7 +339,8 @@ impl<T: Encode, S> Encoder<HashSet<T, S>> for VecEncoder<T> {
 #[cfg(feature = "std")]
 impl<'a, T: Decode<'a> + Eq + Hash, S: BuildHasher + Default> Decoder<'a, HashSet<T, S>>
     for VecDecoder<'a, T>
-{decode_body!(HashSet<T, S>);
+{
+    decode_body!(HashSet<T, S>);
 }
 
 impl<T: Encode> Encoder<LinkedList<T>> for VecEncoder<T> {
@@ -359,57 +359,6 @@ impl<'a, T: Decode<'a>> Decoder<'a, VecDeque<T>> for VecDecoder<'a, T> {
         let v: Vec<T> = self.decode();
         v.into()
     }
-}
-
-#[cfg(feature = "safer-ffi")]
-impl<T: Encode> Encoder<safer_ffi::Vec<T>> for VecEncoder<T> {
-    #[inline(always)]
-    fn encode(&mut self, v: &safer_ffi::Vec<T>) {
-        self.encode(as_safe_slice(v));
-    }
-
-    #[inline(always)]
-    fn encode_vectored<'a>(&mut self, i: impl Iterator<Item = &'a safer_ffi::Vec<T>> + Clone)
-    where
-        safer_ffi::Vec<T>: 'a,
-    {
-        self.encode_vectored(i.map(as_safe_slice));
-    }
-}
-#[cfg(feature = "safer-ffi")]
-impl<'a, T: Decode<'a> + Default + Clone> Decoder<'a, safer_ffi::Vec<T>> for VecDecoder<'a, T> {
-    #[inline(always)]
-    fn decode_in_place(&mut self, out: &mut MaybeUninit<safer_ffi::Vec<T>>) {
-        let length = self.lengths.decode();
-        // Fast path, avoid memcpy and mutating len.
-        if length == 0 {
-            out.write(Vec::new().into());
-            return;
-        }
-
-        let v = out.write(vec![T::default(); length].into());
-        if let Some(primitive) = self.elements.as_primitive() {
-            unsafe {
-                primitive
-                    .as_ptr()
-                    .copy_to_nonoverlapping(v.as_mut_ptr() as *mut Unaligned<T>, length);
-                primitive.advance(length);
-            }
-        } else {
-            unsafe {
-                let len = v.len();
-                slice::from_raw_parts_mut(
-                    v.as_mut_ptr() as *mut MaybeUninit<T>,
-                    len
-                ).iter_mut().for_each(|e| self.elements.decode_in_place(e));
-            }
-        }
-    }
-}
-
-#[cfg(feature = "safer-ffi")]
-fn as_safe_slice<T>(v: &safer_ffi::Vec<T>) -> &[T] {
-    unsafe { slice::from_raw_parts(v.as_ptr(), v.len()) }
 }
 
 #[cfg(test)]
@@ -441,12 +390,5 @@ mod test {
             debug_assert!(data.iter().eq(decoded.iter()));
             decoded
         })
-    }
-
-    #[test]
-    fn safe_vec() {     
-        let s: safer_ffi::Vec<usize> = vec![100, 1337, 9000].into();
-        let r = crate::encode(&s);
-        crate::decode::<safer_ffi::Vec<usize>>(&r).unwrap();
     }
 }
