@@ -235,27 +235,3 @@ fn as_safe_slice<T>(v: &safer_ffi::Vec<T>) -> &[T] {
 fn as_chars(v: &safer_ffi::String) -> &[U8Char] {
     bytemuck::must_cast_slice(v.as_bytes())
 }
-
-impl<T: Encode> Encode for safer_ffi::Vec<T> {
-    type Encoder = VecEncoder<T>;
-}
-
-impl<'a, T: Decode<'a> + Default + Clone> Decode<'a> for safer_ffi::Vec<T> {
-    type Decoder = VecDecoder<'a, T>;
-}
-
-impl<T: Encode> Encode for TaggedOption<T> {
-    type Encoder = TaggedOptionEncoder<T>;
-}
-
-impl<'a, T: Decode<'a>> Decode<'a> for TaggedOption<T> {
-    type Decoder = TaggedOptionDecoder<'a, T>;
-}
-
-impl Encode for safer_ffi::String {
-    type Encoder = StrEncoder;
-}
-
-impl<'a> Decode<'a> for safer_ffi::String {
-    type Decoder = StrDecoder<'a>;
-}

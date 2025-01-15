@@ -11,9 +11,11 @@ use crate::derive::{Decode, Encode};
 use crate::f32::{F32Decoder, F32Encoder};
 use crate::int::{CheckedIntDecoder, IntDecoder, IntEncoder};
 use crate::str::{StrDecoder, StrEncoder};
+use crate::{TaggedOptionDecoder, TaggedOptionEncoder};
 use alloc::collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque};
 use alloc::string::String;
 use alloc::vec::Vec;
+use safer_ffi::option::TaggedOption;
 use core::marker::PhantomData;
 use core::mem::MaybeUninit;
 use core::num::*;
@@ -211,6 +213,36 @@ impl<T> Encode for PhantomData<T> {
 }
 impl<'a, T> Decode<'a> for PhantomData<T> {
     type Decoder = EmptyCoder;
+}
+
+// safer_ffi
+#[cfg(feature = "safer-ffi")]
+impl<T: Encode> Encode for safer_ffi::Vec<T> {
+    type Encoder = VecEncoder<T>;
+}
+
+#[cfg(feature = "safer-ffi")]
+impl<'a, T: Decode<'a> + Default + Clone> Decode<'a> for safer_ffi::Vec<T> {
+    type Decoder = VecDecoder<'a, T>;
+}
+
+#[cfg(feature = "safer-ffi")]
+impl<T: Encode> Encode for TaggedOption<T> {
+    type Encoder = TaggedOptionEncoder<T>;
+}
+
+#[cfg(feature = "safer-ffi")]
+impl<'a, T: Decode<'a>> Decode<'a> for TaggedOption<T> {
+    type Decoder = TaggedOptionDecoder<'a, T>;
+}
+
+#[cfg(feature = "safer-ffi")]
+impl Encode for safer_ffi::String {
+    type Encoder = StrEncoder;
+}
+#[cfg(feature = "safer-ffi")]
+impl<'a> Decode<'a> for safer_ffi::String {
+    type Decoder = StrDecoder<'a>;
 }
 
 macro_rules! impl_tuples {
