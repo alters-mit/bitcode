@@ -30,7 +30,7 @@ mod nightly;
 mod pack;
 mod pack_ints;
 #[cfg(feature = "safer-ffi")]
-pub mod safer_ffi;
+mod safer_ffi;
 mod str;
 mod u8_char;
 
